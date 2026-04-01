@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TRI Internal - Terminal 0-A</title>
+    <style>
+        :root {
+            --bg-color: #000b14;
+            --text-color: #cbd5e0;
+            --accent-blue: #2a4365;
+            --manila-beige: #f0e68c;
+            --alert-red: #822727;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Courier New', Courier, monospace;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+            text-transform: uppercase;
+        }
+
+        /* Scanline Overlay */
+        body::before {
+            content: " ";
+            display: block;
+            position: absolute;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
+                        linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            z-index: 2;
+            background-size: 100% 2px, 3px 100%;
+            pointer-events: none;
+        }
+
+        .container {
+            width: 80%;
+            max-width: 600px;
+            border: 2px solid var(--accent-blue);
+            padding: 20px;
+            background: rgba(10, 25, 47, 0.9);
+            box-shadow: 0 0 15px rgba(42, 67, 101, 0.5);
+            z-index: 3;
+        }
+
+        .header {
+            border-bottom: 2px solid var(--accent-blue);
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            text-align: center;
+        }
+
+        .logo {
+            font-size: 24px;
+            letter-spacing: 5px;
+            color: var(--manila-beige);
+        }
+
+        .hidden { display: none; }
+
+        input {
+            background: transparent;
+            border: 1px solid var(--accent-blue);
+            color: var(--manila-beige);
+            padding: 10px;
+            width: 100%;
+            margin-bottom: 10px;
+            outline: none;
+            box-sizing: border-box;
+        }
+
+        button {
+            background: var(--accent-blue);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            width: 100%;
+            font-weight: bold;
+        }
+
+        button:hover { background: #3182ce; }
+
+        .memo-body {
+            font-size: 0.9em;
+            line-height: 1.6;
+        }
+
+        .warning {
+            color: var(--alert-red);
+            font-weight: bold;
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink { 50% { opacity: 0; } }
+    </style>
+</head>
+<body>
+
+    <div id="login-screen" class="container">
+        <div class="header">
+            <div class="logo">△ TRI SYSTEM △</div>
+            <p>Threshold Research Initiatives</p>
+        </div>
+        <p style="font-size: 0.7em;">UNAUTHORIZED ACCESS PROHIBITED UNDER PROTOCOL 9</p>
+        <input type="text" id="username" placeholder="USERNAME" autocomplete="off">
+        <input type="password" id="password" placeholder="PASSWORD">
+        <button onclick="attemptLogin()">INITIATE SEQUENCE</button>
+        <p id="error-msg" class="warning hidden" style="margin-top: 10px;">CREDENTIALS REJECTED</p>
+    </div>
+
+    <div id="main-content" class="container hidden">
+        <div class="header">
+            <div class="logo">△ TRI ACCESS PANEL △</div>
+            <p>Logged in: <span style="color: var(--manila-beige);">Alexander Barrett</span></p>
+        </div>
+        
+        <div class="memo-body">
+            <p><strong>STAFF STATUS:</strong> ADMINISTRATOR</p>
+            <p><strong>LATEST BASE CHECKPOINT:</strong> Protocol-Site-4 (The Endless Forest)</p>
+            <hr style="border: 0; border-top: 1px solid var(--accent-blue);">
+            <p class="warning">△ ALERT: SUBJECT 44a SHOWING 1.4s REFLECTION DELAY. LOCKDOWN IMMINENT. LEAVE THEM TO DIE. △</p>
+            
+            <p>> Monitoring "The Between State" for resource extraction.</p>
+            <p>> Staff Reminder: "The Hum" is a standard acoustic byproduct of reality thinning. Auditory bleeding is no cause for workspace evacuation.</p>
+            
+       
+            
+            <ul style="list-style-type: '>'; padding-left: 20px;">
+                <li>Protocol-Site-4: STABLE</li>
+                <li>Isolation Desync Rate: 14% increase</li>
+                <li>Subject Sanity Threshold: CRITICAL</li>
+            </ul>
+        </div>
+        
+        <button onclick="location.reload()" style="margin-top: 20px; font-size: 0.7em;">LOGOUT / ERASE TRACE</button>
+    </div>
+
+    <script>
+        function attemptLogin() {
+            const user = document.getElementById('username').value;
+            const pass = document.getElementById('password').value;
+            const error = document.getElementById('error-msg');
+
+            if (user === "AlexAdm" && pass === "TRIADMIN1998") {
+                document.getElementById('login-screen').classList.add('hidden');
+                document.getElementById('main-content').classList.remove('hidden');
+            } else {
+                error.classList.remove('hidden');
+                setTimeout(() => { error.classList.add('hidden'); }, 3000);
+            }
+        }
+    </script>
+</body>
+</html>
