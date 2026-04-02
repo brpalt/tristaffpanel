@@ -1,10 +1,9 @@
-    <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TRI_INTERNAL_v.4.02.b</title>
-    <link rel="icon" type="image/png" href="tri_icon.png">
     <style>
         :root {
             --bg-color: #01080e;
@@ -42,9 +41,9 @@
             align-items: center;
             overflow: hidden;
             text-transform: uppercase;
+            transition: background-color 0.3s ease;
         }
 
-        /* CRT Effects Overlay */
         .crt-overlay {
             position: fixed;
             top: 0; left: 0; width: 100vw; height: 100vh;
@@ -167,7 +166,7 @@
         <input type="text" id="username" placeholder="USER_ID" autocomplete="off">
         <input type="password" id="password" placeholder="SECURE_KEY">
         <button onclick="attemptLogin()">LOGIN</button>
-        <p id="error-msg" class="hidden" style="color: var(--alert-red); font-size: 0.7em; text-align: center; margin-top: 15px;">AUTH_FAILURE: PERSONNEL NOT FOUND</p>
+        <p id="error-msg" class="hidden" style="color: var(--alert-red); font-size: 0.7em; text-align: center; margin-top: 15px; font-weight: bold; letter-spacing: 2px;"></p>
     </div>
 
     <div id="main-content" class="container hidden">
@@ -182,11 +181,11 @@
         
         <div class="memo-body">
             <div class="warning-box">
-                <span class="glitch" style="color: var(--alert-red); font-weight: bold;">[!] URGENT: DEATH</span>
-                <p style="font-size: 0.8em; margin-top: 5px;">SUBJECT 44a HAS DIED TO THE REFLECTION.</p>
+                <span class="glitch" style="color: var(--alert-red); font-weight: bold;">[!] URGENT STATUS</span>
+                <p style="font-size: 0.8em; margin-top: 5px;">STRUCTURAL INTEGRITY COMPROMISED IN SECTOR 4.</p>
             </div>
             
-            <p>> DAYS WITHOUT DEATH: <span style="color: var(--manila-beige);">3</span></p>
+            <p>> DAYS WITHOUT INCIDENT: <span style="color: var(--manila-beige);">3</span></p>
             <p>> LATEST ANOMALY: The Faker</p>
             
             <ul style="list-style-type: '>'; padding-left: 20px; font-size: 0.85em;">
@@ -198,11 +197,11 @@
         <div id="forbidden-logs">
             <div id="log-status" style="color: var(--accent-blue); margin-bottom: 5px;">[SECURE CONNECTION ESTABLISHED]</div>
             <div id="log-anchor">
-                [SYS_LOG]: USER: DR_BARRETT LOGGED IN<br>
+                [SYS_LOG]: USER: BRP0415 LOGGED IN<br>
             </div>
         </div>
         
-        <button onclick="location.reload()" style="margin-top: 20px; font-size: 0.65em; background: #000; border-color: var(--accent-blue);">LOGOUT</button>
+        <button onclick="location.reload()" style="margin-top: 20px; font-size: 0.65em; background: #000; border-color: var(--accent-blue);">LOGOUT / SHUTDOWN</button>
     </div>
 
     <audio id="hum" loop>
@@ -210,6 +209,7 @@
     </audio>
 
     <script>
+        // Clock functionality
         setInterval(() => {
             const now = new Date();
             document.getElementById('clock').innerText = now.toLocaleTimeString();
@@ -221,12 +221,10 @@
             "ALERT: CASTAWAY DETECTED. KILL ON SIGHT",
             "EYES: PLEASE LET ME HELP YOU",
             "EYES: DON'T LET THEM CATCH YOU",
-            "EYES: https://drive.google.com/file/d/14nMAqjN0E5SIt7kD-nC-ML7H3XdE3L67/view?usp=sharing",
-            "SYMPTOM CHECK: ARE YOU SEEING DOUBLE REFLECTIONS? IF SO THEN GO TO THE EXECUTION ROOM.",
-            "DATA: PERSONNEL ARE INSTRUCTED TO STOP TIMING BREATHS WITH FANS IN SITE-02",
-            "ALERT: A THIRD HALLWAY HAS APPEARED IN THE WEST WING OF SITE-09",
+            "SYMPTOM CHECK: ARE YOU SEEING DOUBLE REFLECTIONS?",
+            "DATA: PERSONNEL ARE INSTRUCTED TO STOP TIMING BREATHS WITH FANS",
+            "ALERT: A THIRD HALLWAY HAS APPEARED IN THE WEST WING",
             "LOG: SITE-08 SMELLS LIKE BURNT OZONE",
-            "EYES: GILBERT ISN'T WHAT HE SEEMS",
             "ALERT: REALITY SHIFT AT SITE-03. SEND SUBJECT 918C TO DOCUMENT."
         ];
 
@@ -247,6 +245,14 @@
             const error = document.getElementById('error-msg');
             const hum = document.getElementById('hum');
 
+            // CASE: ALEXADMIN LORE TRIGGER
+            if (user === "AlexAdmin" && pass === "TRIADMIN1998") {
+                error.innerText = "ERROR: DR. BARRETT IS DECEASED";
+                triggerFailureState(error);
+                return;
+            }
+
+            // CASE: STANDARD ADMIN ACCESS
             if (user === "BRPDirector" && pass === "NexaLabOurSaviour") {
                 hum.volume = 0.2;
                 hum.play();
@@ -255,14 +261,22 @@
                 shuffledLogs = shuffle([...logLibrary]);
                 startLeakingLogs();
                 startRealityWarp();
-            } else {
-                error.classList.remove('hidden');
-                document.body.style.backgroundColor = "#200";
-                setTimeout(() => { 
-                    error.classList.add('hidden'); 
-                    document.body.style.backgroundColor = "#01080e";
-                }, 1000);
+            } 
+            // CASE: INCORRECT CREDENTIALS
+            else {
+                error.innerText = "AUTH_FAILURE: PERSONNEL NOT FOUND";
+                triggerFailureState(error);
             }
+        }
+
+        function triggerFailureState(errorElement) {
+            errorElement.classList.remove('hidden');
+            document.body.style.backgroundColor = "#200"; // Dark red flicker
+            
+            setTimeout(() => { 
+                errorElement.classList.add('hidden'); 
+                document.body.style.backgroundColor = "#01080e";
+            }, 3000); // 3 seconds for readability
         }
 
         function startLeakingLogs() {
