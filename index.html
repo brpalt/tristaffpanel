@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TRI_INTERNAL_v.4.02.b</title>
+    <title>TRI_INTERNAL_v.7.04.c</title>
     <style>
         :root {
             --bg-color: #01080e;
@@ -13,6 +13,7 @@
             --alert-red: #ff0000;
             --crt-glow: rgba(66, 153, 225, 0.15);
             --terminal-green: #00ff41;
+            --warning-orange: #ff8c00;
         }
 
         @keyframes flicker {
@@ -23,11 +24,6 @@
         @keyframes scanline {
             0% { bottom: 100%; }
             100% { bottom: 0%; }
-        }
-
-        @keyframes textShadow {
-            0% { text-shadow: 0.5px 0 0 red, -0.5px 0 0 blue; }
-            100% { text-shadow: -0.5px 0 0 red, 0.5px 0 0 blue; }
         }
 
         body {
@@ -41,7 +37,7 @@
             align-items: center;
             overflow: hidden;
             text-transform: uppercase;
-            transition: background-color 0.3s ease;
+            transition: background-color 0.2s ease;
         }
 
         .crt-overlay {
@@ -55,97 +51,86 @@
         }
 
         .scanline {
-            position: absolute;
-            width: 100%;
-            height: 100px;
-            z-index: 101;
+            position: absolute; width: 100%; height: 100px; z-index: 101;
             background: linear-gradient(0deg, rgba(0, 0, 0, 0) 0%, rgba(255, 255, 255, 0.05) 50%, rgba(0, 0, 0, 0) 100%);
-            opacity: 0.1;
-            bottom: 100%;
-            animation: scanline 10s linear infinite;
+            opacity: 0.1; bottom: 100%; animation: scanline 10s linear infinite;
         }
 
         .container {
-            width: 90%;
-            max-width: 750px;
+            width: 95%;
+            max-width: 900px;
             border: 1px solid var(--accent-blue);
-            padding: 40px;
+            padding: 30px;
             background: rgba(5, 15, 25, 0.95);
             box-shadow: inset 0 0 60px rgba(0,0,0,1), 0 0 20px var(--crt-glow);
             position: relative;
             z-index: 10;
         }
 
-        .header {
-            border-bottom: 3px double var(--accent-blue);
-            margin-bottom: 25px;
-            padding-bottom: 15px;
-        }
-
-        .logo {
-            font-size: 28px;
-            letter-spacing: 8px;
-            color: var(--manila-beige);
-            animation: textShadow 0.1s infinite;
-        }
-
-        .status-bar {
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.7em;
-            margin-bottom: 10px;
-            color: var(--accent-blue);
-        }
-
         .hidden { display: none !important; }
 
-        input {
+        .grid-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .panel {
+            border: 1px solid #2d3748;
+            padding: 15px;
+            background: rgba(0,0,0,0.3);
+        }
+
+        .status-header {
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--accent-blue);
+            padding-bottom: 5px;
+            margin-bottom: 10px;
+            font-weight: bold;
+            color: var(--manila-beige);
+        }
+
+        input, button {
             background: #000;
             border: 1px solid var(--accent-blue);
             color: var(--terminal-green);
-            padding: 15px;
+            padding: 12px;
             width: 100%;
-            margin-bottom: 15px;
-            outline: none;
-            box-sizing: border-box;
+            margin-bottom: 10px;
             font-family: inherit;
         }
 
-        button {
+        button:hover {
             background: var(--accent-blue);
             color: white;
-            border: 1px solid #4299e1;
-            padding: 15px;
             cursor: pointer;
-            width: 100%;
-            font-weight: bold;
-            transition: all 0.2s;
         }
 
-        button:hover {
-            background: #2c5282;
-            box-shadow: 0 0 10px #4299e1;
+        #log-feed {
+            font-size: 0.7em;
+            height: 180px;
+            overflow-y: hidden;
+            color: var(--terminal-green);
+            border: 1px solid #1a202c;
+            padding: 10px;
+            margin-top: 10px;
+            line-height: 1.4;
         }
 
-        .warning-box {
-            border: 1px solid var(--alert-red);
-            background: rgba(130, 39, 39, 0.1);
-            padding: 15px;
-            margin: 20px 0;
-        }
+        .alert { color: var(--alert-red); animation: flicker 0.5s infinite; }
+        .secure { color: var(--terminal-green); }
+        .warning { color: var(--warning-orange); }
 
-        #forbidden-logs {
-            font-size: 0.65em;
-            color: #4a5568;
-            height: 100px;
-            overflow: hidden;
+        .command-line {
             margin-top: 20px;
-            border-top: 1px solid var(--accent-blue);
-            padding-top: 10px;
+            display: flex;
+            align-items: center;
         }
 
-        .log-entry { color: var(--terminal-green); margin-bottom: 4px; }
-        .glitch { animation: flicker 0.2s infinite; }
+        .command-line label { margin-right: 10px; color: var(--accent-blue); font-weight: bold; }
+        #cmd-input { border: none; border-bottom: 1px solid var(--accent-blue); width: 85%; margin-bottom: 0; }
     </style>
 </head>
 <body>
@@ -154,54 +139,58 @@
     <div class="scanline"></div>
 
     <div id="login-screen" class="container">
-        <div class="status-bar">
-            <span>TERMINAL_ID: SITE-0-ALFA</span>
-            <span id="clock">--:--:--</span>
+        <div style="text-align: center; margin-bottom: 20px;">
+            <div style="font-size: 2.5em; letter-spacing: 10px; color: var(--manila-beige);">△ TRI △</div>
+            <p style="font-size: 0.7em; color: var(--accent-blue);">THRESHOLD RESEARCH INITIATIVES : DIRECTOR TERMINAL</p>
         </div>
-        <div class="header" style="text-align: center;">
-            <div class="logo">△ TRI ADMIN PANEL △</div>
-            <p style="font-size: 0.8em; margin-top: 10px;">Research Initiatives : Internal Portal</p>
-        </div>
-        <p style="font-size: 0.6em; text-align: center; color: #4a5568;">ENTER CREDENTIALS TO SYNC REALITY</p>
-        <input type="text" id="username" placeholder="USER_ID" autocomplete="off">
-        <input type="password" id="password" placeholder="SECURE_KEY">
-        <button onclick="attemptLogin()">LOGIN</button>
-        <p id="error-msg" class="hidden" style="color: var(--alert-red); font-size: 0.7em; text-align: center; margin-top: 15px; font-weight: bold; letter-spacing: 2px;"></p>
+        <input type="text" id="username" placeholder="DIRECTOR_ID" autocomplete="off">
+        <input type="password" id="password" placeholder="SECURITY_ENCRYPTION_KEY">
+        <button onclick="attemptLogin()">INITIALIZE SYNC</button>
+        <p id="error-msg" class="hidden" style="color: var(--alert-red); text-align: center; font-size: 0.8em;"></p>
     </div>
 
     <div id="main-content" class="container hidden">
-        <div class="status-bar">
-            <span>CLEARANCE: ADMINISTRATOR (L5)</span>
-            <span id="desync-timer" style="color: var(--alert-red);">LATEST: Site-09</span>
-        </div>
-        <div class="header">
-            <div class="logo" style="font-size: 20px;">△ TRI ADMIN △</div>
-            <p style="font-size: 0.7em;">USER: BARRETT, A</p>
-        </div>
-        
-        <div class="memo-body">
-            <div class="warning-box">
-                <span class="glitch" style="color: var(--alert-red); font-weight: bold;">[!] URGENT STATUS</span>
-                <p style="font-size: 0.8em; margin-top: 5px;">STRUCTURAL INTEGRITY COMPROMISED IN SECTOR 4.</p>
-            </div>
-            
-            <p>> DAYS WITHOUT INCIDENT: <span style="color: var(--manila-beige);">3</span></p>
-            <p>> LATEST ANOMALY: The Faker</p>
-            
-            <ul style="list-style-type: '>'; padding-left: 20px; font-size: 0.85em;">
-                <li>SITE-0 (ENTRYWAY): <span style="color: #00ff41;">STABLE</span></li>
-                <li>SITE-04 (FOREST): <span style="color: var(--alert-red);">ANOMALY BREACH</span></li>
-            </ul>
+        <div style="display: flex; justify-content: space-between; font-size: 0.6em; color: var(--accent-blue);">
+            <span>CLEARANCE: LEVEL 05 (DIRECTOR)</span>
+            <span>UPLINK: SECURE_SYNC_STABLE</span>
+            <span id="clock">00:00:00</span>
         </div>
 
-        <div id="forbidden-logs">
-            <div id="log-status" style="color: var(--accent-blue); margin-bottom: 5px;">[SECURE CONNECTION ESTABLISHED]</div>
-            <div id="log-anchor">
-                [SYS_LOG]: USER: BRP0415 LOGGED IN<br>
+        <div class="grid-layout">
+            <div class="panel">
+                <div class="status-header">REALM INTEGRITY</div>
+                <div style="font-size: 0.8em; line-height: 1.6;">
+                    [SITE-0]: <span class="secure">BASELINE STABLE</span><br>
+                    [SITE-4]: <span class="warning">ORGANIC OVERGROWTH</span><br>
+                    [SITE-9]: <span class="alert">MANAGER OFF BREAK</span><br>
+                    [SITE-12]: <span class="secure">SYNCED</span>
+                </div>
+            </div>
+
+            <div class="panel">
+                <div class="status-header">HUMAN ASSETS</div>
+                <div style="font-size: 0.8em; line-height: 1.6;">
+                    ACTIVE SUBJECTS: 1,242<br>
+                    MISSING SUBJECTS: <span class="warning">14</span><br>
+                    SENSORY DRIFT: 4.2%<br>
+                    MUTATION RATE: <span class="secure">0.02%</span>
+                </div>
             </div>
         </div>
-        
-        <button onclick="location.reload()" style="margin-top: 20px; font-size: 0.65em; background: #000; border-color: var(--accent-blue);">LOGOUT / SHUTDOWN</button>
+
+        <div id="log-feed">
+            [SYS]: DIRECTOR CREDENTIALS VERIFIED.<br>
+            [SYS]: ACCESSING ENCRYPTED DATA STREAMS...<br>
+        </div>
+
+        <div class="command-line">
+            <label>TRI_CMD></label>
+            <input type="text" id="cmd-input" placeholder="Type command..." autocomplete="off">
+        </div>
+
+        <div style="margin-top: 20px; text-align: right;">
+            <button onclick="location.reload()" style="width: 120px; font-size: 0.6em;">LOGOUT</button>
+        </div>
     </div>
 
     <audio id="hum" loop>
@@ -209,107 +198,118 @@
     </audio>
 
     <script>
-        // Clock functionality
-        setInterval(() => {
-            const now = new Date();
-            document.getElementById('clock').innerText = now.toLocaleTimeString();
-        }, 1000);
+        // DATA STORAGE
+        const TRI_COORDS = {
+            "site-4":  "44.3148° N, 85.6024° W [FOREST ENCLOSURE]",
+            "site-9":  "37.2431° N, 115.7930° W [NON-EUCLIDEAN OFFICE]",
+            "site-12": "51.1789° N, 1.8262° W [THE WELL JUNCTION]"
+        };
 
         const logLibrary = [
-            "WARNING: AUDITORY BLEEDING DETECTED IN THE WEST WING OF SITE-09",
-            "REMINDER: DO NOT COUNT THE WINDOWS IN PROTOCOL-SITE-9",
-            "ALERT: CASTAWAY DETECTED. KILL ON SIGHT",
-            "EYES: PLEASE LET ME HELP YOU",
-            "EYES: DON'T LET THEM CATCH YOU",
-            "SYMPTOM CHECK: ARE YOU SEEING DOUBLE REFLECTIONS?",
-            "DATA: PERSONNEL ARE INSTRUCTED TO STOP TIMING BREATHS WITH FANS",
-            "ALERT: A THIRD HALLWAY HAS APPEARED IN THE WEST WING",
-            "LOG: SITE-08 SMELLS LIKE BURNT OZONE",
-            "ALERT: REALITY SHIFT AT SITE-03. SEND SUBJECT 918C TO DOCUMENT."
+            "ALERT: SITE-14 FLOOR GEOMETRY IS ROTATING 15 DEGREES EVERY 3 SECONDS.",
+            "STATUS_CHECK: ONLINE AND FUNCTIONAL",
+            "DATA: RECOVERY TEAM 4 HAS CEASED TO EXIST.",
+            "SECURITY: UNKNOWN SIGNAL DETECTED IN SITE-14.",
+            "MEDICAL: SEDATIVE STOCK AT 12%. ORDERING MORE.",
+            "ANOMALY: THE FAKER IS CURRENTLY DISGUISED AS OUR VENDING MACHINE. DO NOT TOUCH.",
+            "LOG: THE BETWEEN STATE IS EXPANDING INTO THE BREAKROOM.",
+            "ALERT: DO NOT LOOK AT THE CEILING IN PROTOCOL-SITE-9."
         ];
 
-        let shuffledLogs = [];
-        let timer = 60;
+        let activeLogs = [];
 
-        function shuffle(array) {
-            for (let i = array.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [array[i], array[j]] = [array[j], array[i]];
-            }
-            return array;
+        // UI UPDATES
+        function updateClock() {
+            document.getElementById('clock').innerText = new Date().toLocaleTimeString();
         }
+        setInterval(updateClock, 1000);
 
+        // LOGIN LOGIC
         function attemptLogin() {
             const user = document.getElementById('username').value;
             const pass = document.getElementById('password').value;
             const error = document.getElementById('error-msg');
             const hum = document.getElementById('hum');
 
-            // CASE: ALEXADMIN LORE TRIGGER
             if (user === "AlexAdmin" && pass === "TRIADMIN1998") {
                 error.innerText = "ERROR: DR. BARRETT IS DECEASED";
-                triggerFailureState(error);
+                error.classList.remove('hidden');
+                document.body.style.backgroundColor = "#300";
+                setTimeout(() => { document.body.style.backgroundColor = "#01080e"; error.classList.add('hidden'); }, 3000);
                 return;
             }
 
-            // CASE: STANDARD ADMIN ACCESS
             if (user === "BRPDirector" && pass === "NexaLabOurSaviour") {
-                hum.volume = 0.2;
+                hum.volume = 0.1;
                 hum.play();
                 document.getElementById('login-screen').classList.add('hidden');
                 document.getElementById('main-content').classList.remove('hidden');
-                shuffledLogs = shuffle([...logLibrary]);
-                startLeakingLogs();
-                startRealityWarp();
-            } 
-            // CASE: INCORRECT CREDENTIALS
-            else {
-                error.innerText = "AUTH_FAILURE: PERSONNEL NOT FOUND";
-                triggerFailureState(error);
+                
+                activeLogs = [...logLibrary].sort(() => Math.random() - 0.5);
+                startLogs();
+            } else {
+                error.innerText = "AUTH_FAILURE: ACCESS DENIED";
+                error.classList.remove('hidden');
             }
         }
 
-        function triggerFailureState(errorElement) {
-            errorElement.classList.remove('hidden');
-            document.body.style.backgroundColor = "#200"; // Dark red flicker
-            
-            setTimeout(() => { 
-                errorElement.classList.add('hidden'); 
-                document.body.style.backgroundColor = "#01080e";
-            }, 3000); // 3 seconds for readability
-        }
-
-        function startLeakingLogs() {
-            const statusDisp = document.getElementById('log-status');
-            const logAnchor = document.getElementById('log-anchor');
-
+        // AUTO-LOG SYSTEM (1 Minute, Unique Only)
+        function startLogs() {
+            const feed = document.getElementById('log-feed');
             setInterval(() => {
-                timer--;
-                if (timer <= 0) {
-                    timer = 60;
-                    if (shuffledLogs.length > 0) {
-                        const msg = shuffledLogs.pop();
-                        const div = document.createElement('div');
-                        div.className = 'log-entry';
-                        div.innerHTML = `[!] ${msg}`;
-                        logAnchor.prepend(div);
-                    } else {
-                        statusDisp.style.color = "var(--alert-red)";
-                        statusDisp.innerText = "[!] BUFFER EMPTY. CONNECTION TERMINATED.";
-                    }
+                if (activeLogs.length > 0) {
+                    const msg = activeLogs.pop();
+                    const div = document.createElement('div');
+                    div.innerHTML = `[${new Date().toLocaleTimeString()}] ${msg}`;
+                    feed.prepend(div);
                 }
-            }, 1000);
+            }, 60000);
         }
 
-        function startRealityWarp() {
-            const container = document.querySelector('.container');
-            setInterval(() => {
-                if(Math.random() > 0.8) {
-                    container.classList.add('glitch');
-                    setTimeout(() => container.classList.remove('glitch'), 500);
+        // COMMAND CONSOLE LOGIC
+        document.getElementById('cmd-input').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                const input = this.value.toLowerCase().trim();
+                const feed = document.getElementById('log-feed');
+                let resp = "";
+
+                if (input === "status") {
+                    resp = "[CMD]: ALL SYSTEMS REPORTING BASELINE. REALITY DRIFT < 0.04%.";
+                } 
+                else if (input === "gilbert") {
+                    resp = "[CMD]: GILBERT STATUS: WORKING. PASSIVE.";
+                    document.body.style.backgroundColor = "#500";
+                    setTimeout(() => document.body.style.backgroundColor = "#01080e", 400);
+                } 
+                else if (input === "list_sites") {
+                    resp = "[CMD]: TRI ACTIVE NODES DETECTED:\n" +
+                           `> SITE-4:  ${TRI_COORDS["site-4"]}\n` +
+                           `> SITE-9:  ${TRI_COORDS["site-9"]}\n` +
+                           `> SITE-12: ${TRI_COORDS["site-12"]}`;
                 }
-            }, 3000);
-        }
+                else if (input === "sync") {
+                    resp = "[CMD]: RE-ESTABLISHING TEMPORAL ANCHORS... SYNC COMPLETE.";
+                }
+                else if (input === "help") {
+                    resp = "[CMD]: COMMANDS: STATUS, GILBERT, SYNC, LIST_SITES, CLEAR.";
+                }
+                else if (input === "clear") {
+                    feed.innerHTML = "[SYS]: CONSOLE BUFFER PURGED.";
+                    this.value = "";
+                    return;
+                }
+                else {
+                    resp = "[CMD]: ERROR: UNKNOWN COMMAND SEQUENCE. TRY 'HELP' IF YOU NEED ASSISTANCE";
+                }
+
+                const div = document.createElement('div');
+                div.style.color = "white";
+                div.style.whiteSpace = "pre-wrap";
+                div.innerHTML = `> ${this.value}<br>${resp}<br><br>`;
+                feed.prepend(div);
+                this.value = "";
+            }
+        });
     </script>
 </body>
 </html>
